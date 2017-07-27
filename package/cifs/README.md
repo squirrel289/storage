@@ -48,28 +48,28 @@ stdout output: {"status":"Success","message":""}
 driver mounts CIFS using pre-existing remote share provided by user
 
 ```
-./cifs mount /home/ubuntu/nfsMnt '{"host":"cifs-server","export":"/share/path","mntOptions":"user=username,password=pwd,uid=1100,gid=1100,forceuid,forcegid"}'
+./cifs mount /home/ubuntu/cifsMnt '{"host":"cifs-server","export":"/share/path","mntOptions":"user=username,password=pwd,uid=1100,gid=1100,forceuid,forcegid"}'
 
 mntOptions key-value pair is optional for mount, but host and export are the must
 
 stdout output: {"status":"Success","message":""}
 ```
 
-The result is that //cifs-server/share/path is mounted at /home/ubuntu/nfsMnt
+The result is that //cifs-server/share/path is mounted at /home/ubuntu/cifsMnt
 
 
 #### Unmount command
-driver unmount NFS file system
+driver unmount CIFS file system
 
 ```
-./cifs unmount /home/ubuntu/nfsMnt
+./cifs unmount /home/ubuntu/cifsMnt
 
 stdout output: {"status":"Success","message":""}
 ```
 
 ### 2. User does not provide remote share
 
-Rancher have default host and export environment variables set on the host identifying default NFS remote share.
+Rancher have default host and export environment variables set on the host identifying default CIFS remote share.
 Driver will use them to create a directory for each volume during create command and delete it at delete command.
 For instance:
 
@@ -111,19 +111,19 @@ stdout output: {"status":"Success","message":""}
 driver mounts CIFS src share using //HOST/EXPORT/name created at create command phase
 
 ```
-./cifs mount /home/ubuntu/nfsMnt '{"name":"vol1","mntOptions":"user=username,password=pwd"}''
+./cifs mount /home/ubuntu/cifsMnt '{"name":"vol1","mntOptions":"user=username,password=pwd"}''
 mntOptions key-value pair is optional for mount, but name is a must
 
 stdout output: {"status":"Success","message":""}
 ```
 
-The result is that //cifs-server/share/vol1 is mounted at /home/ubuntu/nfsMnt
+The result is that //cifs-server/share/vol1 is mounted at /home/ubuntu/cifsMnt
 
 #### Unmount command
-driver unmount NFS remote share
+driver unmount CIFS remote share
 
 ```
-./cifs unmount /home/ubuntu/nfsMnt
+./cifs unmount /home/ubuntu/cifsMnt
 
 stdout output: {"status":"Success","message":""}
 ```
