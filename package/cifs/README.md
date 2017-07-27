@@ -1,6 +1,6 @@
-## Rancher CIFS V3.0 Volume Plugin Driver for Azure
+## Rancher CIFS v3.0 Volume Plugin Driver
 
-### CIFS driver is a bash script and invocation commands are:
+### CIFS plugin driver is a bash script and invocation commands are:
 
 Create:
 ```
@@ -24,13 +24,13 @@ driver  unmount  mountpoint
 
 Currently we support 2 major use cases
 
-### 1. User provides existing remote share in the form of host:export
+### 1. User provides existing remote share in the form of //host/export
 
 ##### Create command
 driver does nothing
 
 ```
-./cifs create '{"host":"146.148.46.118","export":"/var/cifs"}'
+./cifs create '{"host":"cifs-server","export":"/share/path"}'
 
 stdout output: {"status":"Success","message":""}
 ```
@@ -39,7 +39,7 @@ stdout output: {"status":"Success","message":""}
 driver does nothing
 
 ```
-./cifs delete '{"host":"146.148.46.118","export":"/var/cifs"}'
+./cifs delete '{"host":"cifs-server","export":"/share/path"}'
 
 stdout output: {"status":"Success","message":""}
 ```
@@ -48,34 +48,34 @@ stdout output: {"status":"Success","message":""}
 driver mounts CIFS using pre-existing remote share provided by user
 
 ```
-./cifs mount /home/ubuntu/cifsMnt '{"host":"146.148.46.118","export":"/var/cifs","mntOptions":"ro,vers=4.1"}'
+./cifs mount /home/ubuntu/nfsMnt '{"host":"cifs-server","export":"/share/path","mntOptions":"user=username,password=pwd,uid=1100,gid=1100,forceuid,forcegid"}'
 
 mntOptions key-value pair is optional for mount, but host and export are the must
 
 stdout output: {"status":"Success","message":""}
 ```
 
-The result is that 146.148.46.118:/var/cifs is mounted at /home/ubuntu/cifsMnt
+The result is that //cifs-server/share/path is mounted at /home/ubuntu/nfsMnt
 
 
 #### Unmount command
-driver unmount CIFS file system
+driver unmount NFS file system
 
 ```
-./cifs unmount /home/ubuntu/cifsMnt
+./cifs unmount /home/ubuntu/nfsMnt
 
 stdout output: {"status":"Success","message":""}
 ```
 
 ### 2. User does not provide remote share
 
-Rancher have default host and export environment variables set on the host identifying default CIFS remote share.
+Rancher have default host and export environment variables set on the host identifying default NFS remote share.
 Driver will use them to create a directory for each volume during create command and delete it at delete command.
 For instance:
 
 ```
-export HOST=146.148.46.118
-export EXPORT=/var/cifs
+export HOST=cifs-server
+export EXPORT=/share
 ```
 
 ##### Create command
@@ -85,8 +85,11 @@ The output is the status and newly created directory name
 ```
 ./cifs create '{"mntDest":"/home/ubuntu/mnt","name":"vol1"}'
 
-name represents volume name and mntDest is the mount point this remote volume(HOST:EXPORT/name) will be mounted.
-mntDest is needed for driver to temporarily mount remote share in order to create a subdirectory named "name"
+name represents volume name and mntDest is the mount point this remote volume will be mounted at.
+
+In this example, //cifs-server/share/vol1 (//HOST/EXPORT/name) will be mounted at /home/ubuntu/mnt (mntDest)
+
+mntDest is needed for driver to temporarily mount remote share in order to create a subdirectory named "vol1"
 
 stdout output: {"status": "Success”,"options":{"created":true,"name":"vol1”}}
 
@@ -105,23 +108,22 @@ stdout output: {"status":"Success","message":""}
 ```
 
 #### Mount command
-driver mounts CIFS src share using HOST:EXPORT/name created at create command phase
+driver mounts CIFS src share using //HOST/EXPORT/name created at create command phase
 
 ```
-./cifs mount /home/ubuntu/cifsMnt '{"name":"vol1","mntOptions":"ro,vers=4.1"}'
-
+./cifs mount /home/ubuntu/nfsMnt '{"name":"vol1","mntOptions":"user=username,password=pwd"}''
 mntOptions key-value pair is optional for mount, but name is a must
 
 stdout output: {"status":"Success","message":""}
 ```
 
-The result is that 146.148.46.118:/var/cifs/name is mounted at /home/ubuntu/cifsMnt
+The result is that //cifs-server/share/vol1 is mounted at /home/ubuntu/nfsMnt
 
 #### Unmount command
-driver unmount CIFS remote share
+driver unmount NFS remote share
 
 ```
-./cifs unmount /home/ubuntu/cifsMnt
+./cifs unmount /home/ubuntu/nfsMnt
 
 stdout output: {"status":"Success","message":""}
 ```
